@@ -3,19 +3,91 @@
 
 #include "pch.h"
 #include <iostream>
+#include <string>
+#include <filesystem>
+#include "io.h"
+#include <fstream>
+#include <streambuf>
+#include <sstream>
+#include "DoxDocument.h"
+#include "fileapi.h"
+//#include <Windows.h>
+
+using namespace std;
+
+
+//vector<string> get_all_files_names_within_folder(string folder)
+//{
+//	vector<string> names;
+//	string search_path = folder + "/*.dox";
+//	WIN32_FIND_DATA fd;
+//	HANDLE hFind = ::FindFirstFile(search_path.c_str(), &fd);
+//	if (hFind != INVALID_HANDLE_VALUE) {
+//		do {
+//			// read all (real) files in current folder
+//			// , delete '!' read other 2 default folder . and ..
+//			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+//				names.push_back(fd.cFileName);
+//			}
+//		} while (::FindNextFile(hFind, &fd));
+//		::FindClose(hFind);
+//	}
+//	return names;
+//}
 
 int main()
 {
-    std::cout << "Hello World!\n"; 
+	ifstream doxDoc;
+	string fileName = "Zoos.dox";
+	vector<string> indexDox;
+	string temp;
+	string entireDox;
+	string str;
+	vector<string> fileList;
+
+	DoxDocument dd;
+
+	dd.SetFileName(fileName);
+
+	dd.StoreDoxContents();
+
+	cout << dd.GetIndexSize() << endl;
+
+	//cout << dd.GetEntireDox() << endl;
+
+	//fileList = get_all_files_names_within_folder("C:\\test\\");
+
+
+	/*doxDoc.open(fileName);
+
+	if (!doxDoc.is_open()) {
+		cout << "Could not open: " << fileName << endl;
+	}*/
+
+	//str = getContents(fileName, indexDox);
+
+	//cout << indexDox.size();
+
+	//for (size_t i = 0; i < str.length(); i++)
+	//{
+	//	
+	//	//getline(doxDoc, temp);
+
+	//	//str >> temp;
+
+	//	indexDox.push_back(temp);
+	//}
+
+	//doxDoc.close();
+
+	/*for (string i : indexDox) {
+		cout << i;
+	}*/
+
+	
+
+	//cout << "Words: " << GetWordCount(str);
+
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
