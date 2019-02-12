@@ -152,6 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="dirent.h" />
     <ClInclude Include="DoxDocument.h" />
     <ClInclude Include="HyperDox.h" />
     <ClInclude Include="pch.h" />
