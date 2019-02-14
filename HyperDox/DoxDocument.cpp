@@ -2,7 +2,7 @@
 #include <vector>
 #include "pch.h"
 #include "DoxDocument.h"
-
+#include "dirent.h"
 
 
 #include <iostream>
@@ -23,9 +23,22 @@ DoxDocument::DoxDocument()
 {
 }
 
+DoxDocument::DoxDocument(string file)
+{
+	fileName = file;
+	fileNames.push_back(file);
+	StoreDoxContents();
+}
+
 
 DoxDocument::~DoxDocument()
 {
+}
+
+void DoxDocument::AddFile(string file) {
+	fileName = file;
+	fileNames.push_back(file);
+	StoreDoxContents();
 }
 
 void DoxDocument::SetFileName(string fn)
@@ -42,12 +55,13 @@ string DoxDocument::GetEntireDox() {
 }
 
 int DoxDocument::GetIndexSize() {
-	return indexDox.size();
+	return globalWordIndex.size();
 }
 
 void DoxDocument::StoreDoxContents() {
-	string temp = DoxDocument::getContents(fileName, indexDox);
-	SetEntireDox(temp);
+	fileContents.push_back(DoxDocument::getContents(fileName, globalWordIndex));
+	// string temp = DoxDocument::getContents(fileName, indexDox);
+	//SetEntireDox(temp);
 }
 
 int DoxDocument::GetWordCount(string& strString) {
@@ -75,6 +89,17 @@ int DoxDocument::GetWordCount(string& strString) {
 
 	// The number of words = the number of spaces + 1
 	return nSpaces + 1;
+}
+
+void DoxDocument::SortWordIndex() {
+	// Using sort function with lambda to so it with case
+	sort(globalWordIndex.begin(), globalWordIndex.end(), [](const string& a, const string& b) -> bool {
+		for (size_t c = 0; c < a.size() and c < b.size(); c++) {
+			if (tolower(a[c]) != tolower(b[c]))
+				return (tolower(a[c]) < tolower(b[c]));
+		}
+		return a.size() < b.size();
+	});
 }
 
 string DoxDocument::getContents(string fileName, vector<string>& vect) {
@@ -106,24 +131,49 @@ string DoxDocument::getContents(string fileName, vector<string>& vect) {
 	while (!inFile.eof()) {
 		inFile >> temp;
 
-		// removes uneeded punctuation before adding to vector
-		temp.erase(remove_if(temp.begin(),
-			temp.end(),
-			[](char c)
-		{ return c == ',' || c == '.' || c == '!' || c == ')' || c == '('; }
-		), temp.end());
+		if (temp != fileName) {
+			// removes uneeded punctuation before adding to vector
+			temp.erase(remove_if(temp.begin(),
+				temp.end(),
+				[](char c)
+			{ return c == ',' || c == '.' || c == '!' || c == ')' || c == '(' || c == '/' || c == '\\' || c == '|' || c == '"' || c == ';'
+				|| c == '#' || c == ':' || c == '$'; }
+			), temp.end());
 
-		// adds cleaned word to vector
-		vect.push_back(temp);
+			// adds cleaned word to vector
+			vect.push_back(temp);
 
-		// if successful, word is printed
-		if (!inFile.fail()) {
-			//cout << "added: " << temp << endl;
+			// if successful, word is printed
+			if (!inFile.fail()) {
+				//cout << "added: " << temp << endl;
+			}
 		}
+		
 	}
 	//cout << str << endl;
 
 	inFile.close();
 
 	return str;
+}
+
+void DoxDocument::LoadFolder()
+{
+	string folder = "";
+	//vector<string> names;
+	string search_path = folder + "*.dox";
+	WIN32_FIND_DATA fd;
+	HANDLE hFind = ::FindFirstFile(search_path.c_str(), &fd);
+	if (hFind != INVALID_HANDLE_VALUE) {
+		do {
+			// read all (real) files in current folder
+			// , delete '!' read other 2 default folder . and ..
+			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				//names.push_back(fd.cFileName);
+				AddFile(fd.cFileName);
+				
+			}
+		} while (::FindNextFile(hFind, &fd));
+		::FindClose(hFind);
+	}
 }

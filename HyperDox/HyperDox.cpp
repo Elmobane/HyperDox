@@ -13,6 +13,7 @@
 #include "DoxDocument.h"
 //#include "fileapi.h"
 //#include <Windows.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -20,7 +21,7 @@ using namespace std;
 vector<string> get_all_files_names_within_folder(string folder)
 {
 	vector<string> names;
-	string search_path = folder + "/*.dox";
+	string search_path = folder + "*.dox";
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = ::FindFirstFile(search_path.c_str(), &fd);
 	if (hFind != INVALID_HANDLE_VALUE) {
@@ -36,6 +37,64 @@ vector<string> get_all_files_names_within_folder(string folder)
 	return names;
 }
 
+void LoadFolder(DoxDocument obj)
+{
+	string folder = "";
+	//vector<string> names;
+	string search_path = folder + "*.dox";
+	WIN32_FIND_DATA fd;
+	HANDLE hFind = ::FindFirstFile(search_path.c_str(), &fd);
+	if (hFind != INVALID_HANDLE_VALUE) {
+		do {
+			// read all (real) files in current folder
+			// , delete '!' read other 2 default folder . and ..
+			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				//names.push_back(fd.cFileName);
+				obj.AddFile(fd.cFileName);
+
+			}
+		} while (::FindNextFile(hFind, &fd));
+		::FindClose(hFind);
+	}
+	//return names;
+}
+
+//vector<DoxDocument> get_and_load_all_files_names_within_folder(string folder)
+//{
+//	int numFiles = 0;
+//	vector<DoxDocument> doxs;
+//	vector<string> names;
+//	string search_path = folder + "*.dox";
+//	WIN32_FIND_DATA fd;
+//	HANDLE hFind = ::FindFirstFile(search_path.c_str(), &fd);
+//	if (hFind != INVALID_HANDLE_VALUE) {
+//		do {
+//			// read all (real) files in current folder
+//			// , delete '!' read other 2 default folder . and ..
+//			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+//				string fileName = fd.cFileName;
+//				numFiles++;
+//				ifstream inSS;
+//
+//				inSS.open(fd.cFileName);
+//				//fd.cFileName
+//
+//				
+//
+//				//DoxDocument.fileName.SetFileName(fd.cFileName);
+//
+//				names.push_back(fd.cFileName);
+//			}
+//		} while (::FindNextFile(hFind, &fd));
+//		::FindClose(hFind);
+//	}
+//	return doxs;
+//}
+
+void LoadFiles() {
+	vector<string> fileList = get_all_files_names_within_folder("");
+}
+
 int main()
 {
 	ifstream doxDoc;
@@ -48,11 +107,34 @@ int main()
 
 	DoxDocument dd;
 
-	dd.SetFileName(fileName);
+	/*dd.AddFile(fileName);
+	dd.AddFile("Top.dox");*/
 
-	dd.StoreDoxContents();
+	//dd.SetFileName(fileName);
+
+	//dd.StoreDoxContents();
 
 	cout << dd.GetIndexSize() << endl;
+
+	//LoadFolder(dd);
+	dd.LoadFolder();
+
+	cout << dd.GetIndexSize() << endl;
+
+	dd.SortWordIndex();
+
+	cout << endl;
+
+	//fileList = get_all_files_names_within_folder("");
+
+	//DoxDocument dox1 = DoxDocument(fileList.at(0));
+
+	//cout << dox1.GetIndexSize() << endl;
+	//cout << dox1.GetEntireDox() << endl;
+
+	/*for (auto i : fileList) {
+		cout << i << endl;
+	}*/
 
 	//cout << dd.GetEntireDox() << endl;
 
